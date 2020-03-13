@@ -1,0 +1,25 @@
+//{
+//  "name": "Sammy"
+//  //"last_name": "Shark",
+//  //"location": "Ocean",
+//  //"online": true,
+//  //"followers": 987
+//}
+
+
+{
+  "config": [
+    {
+      "endpoint": "localhost:",
+      "port": 8080,
+      "targetUrl": "https://localhost:44356",
+      "targetResource": "/api/values/"
+    },
+    {
+      "endpoint": "localhost:",
+      "port": 8081,
+      "targetUrl": "https://localhost:44356",
+      "targetResource": "/api/values/"
+    }
+  ]
+}
