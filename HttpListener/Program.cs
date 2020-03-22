@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,12 +11,21 @@ namespace HttpListener
 {
     class Program
     {
-        
+
         private static HttpClient client = new HttpClient();
 
         static void Main(string[] args)
         {
-            Bla();
+            MongoClient dbClient = new MongoClient("https://localhost:27017");
+
+            var dbList = dbClient.ListDatabases().ToList();
+
+            Console.WriteLine("The list of databases on this server is: ");
+            foreach (var db in dbList)
+            {
+                Console.WriteLine(db);
+            }
+            //Bla();
             //ReadFile();
         }
 
@@ -24,18 +34,18 @@ namespace HttpListener
             var web = new System.Net.HttpListener();
 
             var prefixes = ReadFile();
-            foreach(var p in prefixes.Config)
+            foreach (var p in prefixes.Config)
             {
-                web.Prefixes.Add("http://localhost:" + p.Endpoint.ToString() + "/");
+                web.Prefixes.Add(p.Endpoint + p.Port.ToString() + "/");
             }
-           //web.Prefixes.Add("http://localhost:8080/");
+            // web.Prefixes.Add("http://localhost:8080/");
 
             Console.WriteLine("Listening..");
 
             web.Start();
 
             Console.WriteLine(web.GetContext());
-            
+
 
             var context = web.GetContext();
 
@@ -51,7 +61,7 @@ namespace HttpListener
 
             output.Write(buffer, 0, buffer.Length);
 
-            Console.WriteLine(output);
+            // Console.WriteLine(output);
 
             output.Close();
 
@@ -84,16 +94,6 @@ namespace HttpListener
         private static Content ReadFile()
         {
             return JsonConvert.DeserializeObject<Content>(File.ReadAllText(@"C:\Users\MadCat\Documents\Visual Studio 2017\Projects\HttpListener\HttpListener\tsconfig1.json"));
-        }
-    }
-
-    class Content
-    {
-        [JsonProperty(PropertyName = "config")]
-        public List<Config> Config
-        {
-            get;
-            set;
         }
     }
 }
