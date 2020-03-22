@@ -1,10 +1,21 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace HttpListener
 {
     public class Config
     {
+        public class Content
+        {
+            [JsonProperty(PropertyName = "config")]
+            public List<Config> Config
+            {
+                get;
+                set;
+            }
+        }
+
         [JsonProperty(PropertyName = "endpoint")]
         public string Endpoint
         {
