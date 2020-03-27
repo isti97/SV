@@ -13,43 +13,50 @@ namespace HttpListener
 {
     class Program
     {
-
-        private static HttpClient client = new HttpClient();
-        private static MongoClient dbClient = new MongoClient("mongodb://127.0.0.1:27017");
+        private HttpClient httpClient;
+        private DBHandler dbHandler;
         private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\tsconfig1.json";
+        private string targetUrl;
+
+        public Program()
+        {
+            this.dbHandler = new DBHandler();
+            var clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            this.httpClient = new HttpClient(clientHandler);
+        }
 
         static void Main(string[] args)
         {
-            //CreateNewDocumentInDB();
-            Bla();
+            Program program = new Program();
+            program.Manage();
             //ReadFile();
         }
 
-        static async void Bla()
+        private System.Net.HttpListener Initialize()
         {
-            var web = new System.Net.HttpListener();
 
-            var prefixes = ReadFile();
-            foreach (var p in prefixes.Config)
-            {
-                web.Prefixes.Add(p.Endpoint + p.Port.ToString() + "/");
-            }
-            // web.Prefixes.Add("http://localhost:8080/");
+            var listener = new System.Net.HttpListener();
+
+            var configuration = ReadFile();
+            listener.Prefixes.Add(configuration.Endpoint + configuration.Port + "/");
+            this.targetUrl = configuration.TargetUrl;
+            return listener;
+        }
+
+        private async void Manage()
+        {
+            var listener = Initialize();
 
             Console.WriteLine("Listening..");
 
-            web.Start();
+            listener.Start();
 
-            //Console.WriteLine(web.GetContext());
+            var context = listener.GetContext();
 
-            var context = web.GetContext();
-
-            //var path = context.Request.Url.PathAndQuery;
-
-            
             var response = context.Response;
 
-            string responseString = await CreateRequest(context);
+            string responseString = await this.CreateRequest(context);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
 
@@ -64,30 +71,34 @@ namespace HttpListener
 
             output.Close();
 
-            web.Stop();
+            listener.Stop();
 
             Console.ReadKey();
         }
 
-        private static async Task<string> CreateRequest(HttpListenerContext context)
+        private async Task<string> CreateRequest(HttpListenerContext context)
         {
-            var path = context.Request.Url.PathAndQuery;
+            var httpPath = context.Request.Url.PathAndQuery;
             var headers = context.Request.Headers;
             var body = ConvertStreamToString(context.Request.InputStream); //body
-            var url = "http://localhost:49363" + path;
+            var url = this.targetUrl + httpPath;
+
+            var document = dbHandler.CheckEntryInDB(url);
+
+            if (document != null)
+            {
+                return document.GetElement("response").ToString();
+            }
 
             if (body.Length > 0)
             {
                 // kuld tovabb a bodyt a requestel
             }
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-
 
             string response = null;
-            using (var client = new HttpClient(clientHandler))
+            using (httpClient)
             {
-                var responseTask = client.GetAsync(url);
+                var responseTask = httpClient.GetAsync(url);
                 responseTask.Wait();
 
                 HttpResponseMessage result = responseTask.Result;
@@ -96,29 +107,23 @@ namespace HttpListener
                     response = result.Content.ReadAsStringAsync().Result;
                 }
             }
-            CreateNewDocumentInDB(url, response);
+            dbHandler.CreateNewDocumentInDB(url, response);
             return response;
         }
 
-        private static Content ReadFile()
+        private static Config ReadFile()
         {
-            return JsonConvert.DeserializeObject<Content>(File.ReadAllText(path));
-        }
-
-        private static void CreateNewDocumentInDB(string request, string response)
-        {
-
-            IMongoDatabase db = dbClient.GetDatabase("sv");
-
-            var req_res = db.GetCollection<BsonDocument>("request_responses");
-
-            var doc = new BsonDocument
-            {
-                {"request", request},
-                {"response", response}
-            };
-
-            req_res.InsertOne(doc);
+            var c = @"{
+  'config':
+    {
+                'endpoint': 'http://localhost:',
+      'port': 8080,
+      'targetUrl': 'http://localhost:62863',
+      'targetResource': '/api/values/'
+    }
+        }";
+            Config t = JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
+            return t;
         }
 
         private static string ConvertStreamToString(Stream stream)
