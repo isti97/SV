@@ -4,13 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace HttpListener
+namespace Virtualization
 {
     public class DBHandler
     {
         private static MongoClient dbClient = new MongoClient("mongodb://127.0.0.1:27017");
         private const string database = "sv";
-        private const string collection = "request_responses";
+        private readonly string collection;
+
+        public DBHandler(string collectionName)
+        {
+            this.collection = collectionName;
+        }
 
         public void CreateNewDocumentInDB(string request, string response)
         {

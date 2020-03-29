@@ -1,9 +1,11 @@
 {
-  "config":
-    {
-      "endpoint": "http://localhost:",
-      "port": 8080,
-      "targetUrl": "http://localhost:62863",
-      "targetResource": "/api/values/"
-    }
+  "Endpoint": "http://localhost:",
+  "Port": 8080,
+  "TargetUrl": "http://localhost:56528",
+  "SourceUrl": "http://localhost:56550",
+  "TargetResource": "/api/values/",
+  "Type": "UDP",
+  "TargetPort": 11000,
+  "CallbackPort": 8081,
+  "SourceListenerPort": 11001
 }

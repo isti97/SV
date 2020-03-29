@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HttpListener
+namespace Virtualization
 {
     public class Initializer
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace HttpListener
+namespace Virtualization
 {
     /*public class Content
     {
@@ -16,68 +16,75 @@ namespace HttpListener
 
     public class Config
     {
-        public Config(string endpoint, int port, string targetUrl, string targetResource)
+        /*public Config(string endpoint, int port, string targetUrl, string targetResource)
         {
             Endpoint = endpoint;
             Port = port;
             TargetUrl = targetUrl;
             TargetResource = targetResource;
-        }
+        }*/
 
-        [JsonProperty(PropertyName = "endpoint")]
+       // [JsonProperty(PropertyName = "endpoint")]
         public string Endpoint
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "port")]
+       // [JsonProperty(PropertyName = "port")]
         public int Port
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "targetUrl")]
+       // [JsonProperty(PropertyName = "targetUrl")]
         public string TargetUrl
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "targetResource")]
+        // only for udp needed
+        public string SourceUrl
+        {
+            get;
+            set;
+        }
+
+      //  [JsonProperty(PropertyName = "targetResource")]
         public string TargetResource
         {
             get;
             set;
         }
 
-        /*[JsonProperty(PropertyName = "type")]
+        //[JsonProperty(PropertyName = "type")]
         public string Type
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "targetPort")]
+        // only for udp needed
         public int TargetPort
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "callbackPort")]
+        // only for udp needed
         public int CallbackPort
         {
             get;
             set;
         }
 
-        [JsonProperty(PropertyName = "sourceListenerPort")]
+        // only for udp needed
         public int SourceListenerPort
         {
             get;
             set;
-        }*/
+        }
     }
 }

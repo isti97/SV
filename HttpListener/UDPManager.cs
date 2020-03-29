@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace HttpListener
+namespace Virtualization
 {
     public class UDPManager
     {
@@ -13,16 +14,22 @@ namespace HttpListener
         private int listenPort;
         private int callbackPort;
         private int sourceListenerPort;
+        private DBHandler dBHandler;
+
+        public UDPManager(DBHandler dBHandler)
+        {
+            this.dBHandler = dBHandler;
+        }
 
         public void Manage()
         {
             Initialize();
-
+            ListenCommunication();
         }
 
         private void Initialize()
         {
-            /*var configuration = Program.ReadFile();
+            var configuration = Program.ReadFile();
             this.targetPort = configuration.TargetPort;
             this.listenPort = configuration.Port;
             this.callbackPort = configuration.CallbackPort;
@@ -39,9 +46,18 @@ namespace HttpListener
                 while (true)
                 {
                     byte[] bytes = listener.Receive(ref groupEP);
-                    var data = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-                    ForwardMessage(data, targetPort);
-                    ListenForCallback();
+                    var req = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                    var document = dBHandler.CheckEntryInDB(req);
+                    if (document != null)
+                    {
+                        var resp = document.GetElement("response").Value.ToString();
+                        ForwardMessage(resp, sourceListenerPort);
+                        continue;
+                    }
+
+                    ForwardMessage(req, targetPort);
+                    var res = ListenForCallback();
+                    dBHandler.CreateNewDocumentInDB(req, res);
                     Thread.Sleep(100);
                 }
             }
@@ -63,27 +79,27 @@ namespace HttpListener
             s.SendTo(sendbuf, endPoint);
         }
 
-        private void ListenForCallback()
+        private string ListenForCallback()
         {
             UdpClient listener = new UdpClient(callbackPort);
             IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, callbackPort);
 
             try
             {
-                while (true)
-                {
-                    byte[] bytes = listener.Receive(ref groupEP);
-                    var data = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-                    ForwardMessage(data, sourceListenerPort);
-                }
+                byte[] bytes = listener.Receive(ref groupEP);
+                var data = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                ForwardMessage(data, sourceListenerPort);
+
+                return data;
             }
             catch (SocketException e)
             {
+                return null;
             }
             finally
             {
                 listener.Close();
-            }*/
+            }
         }
     }
 }

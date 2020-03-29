@@ -7,20 +7,19 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using static HttpListener.Config;
+using static Virtualization.Config;
 
-namespace HttpListener
+namespace Virtualization
 {
     class Program
     {
         private HttpClient httpClient;
         private DBHandler dbHandler;
-        private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\tsconfig1.json";
+        private const string path = @"C:\Users\MadCat\Desktop\studium\bakk2\SV\HttpListener\tsconfig1.json";
         private string targetUrl;
 
         public Program()
         {
-            this.dbHandler = new DBHandler();
             var clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
             this.httpClient = new HttpClient(clientHandler);
@@ -33,11 +32,25 @@ namespace HttpListener
             //ReadFile();
         }
 
-        private System.Net.HttpListener Initialize()
+        private Types Initialize()
         {
 
-            var listener = new System.Net.HttpListener();
+            var configuration = ReadFile();
+            if (configuration.Type == "UDP")
+            {
+                this.dbHandler = new DBHandler("udp_messages");
+                return Types.UDP;
+            }
+            else
+            {
+                this.dbHandler = new DBHandler("request_responses");
+                return Types.HTTP;
+            }
+        }
 
+        private System.Net.HttpListener InitializeHttp()
+        {
+            var listener = new System.Net.HttpListener();
             var configuration = ReadFile();
             listener.Prefixes.Add(configuration.Endpoint + configuration.Port + "/");
             this.targetUrl = configuration.TargetUrl;
@@ -46,32 +59,41 @@ namespace HttpListener
 
         private async void Manage()
         {
-            var listener = Initialize();
+            var type = Initialize();
+            if (type == Types.HTTP)
+            {
+                var listener = InitializeHttp();
 
-            Console.WriteLine("Listening..");
+                Console.WriteLine("Listening..");
 
-            listener.Start();
+                listener.Start();
 
-            var context = listener.GetContext();
+                var context = listener.GetContext();
 
-            var response = context.Response;
+                var response = context.Response;
 
-            string responseString = await this.CreateRequest(context);
+                string responseString = await this.CreateRequest(context);
 
-            var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+                var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
 
-            response.ContentLength64 = buffer.Length;
+                response.ContentLength64 = buffer.Length;
 
-            var output = response.OutputStream;
+                var output = response.OutputStream;
 
-            output.Write(buffer, 0, buffer.Length);
+                output.Write(buffer, 0, buffer.Length);
 
-            
-            // Console.WriteLine(output);
 
-            output.Close();
+                // Console.WriteLine(output);
 
-            listener.Stop();
+                output.Close();
+
+                listener.Stop();
+            }
+            else
+            {
+                UDPManager uDPManager = new UDPManager(this.dbHandler);
+                uDPManager.Manage();
+            }
 
             Console.ReadKey();
         }
@@ -88,6 +110,7 @@ namespace HttpListener
             if (document != null)
             {
                 return document.GetElement("response").ToString();
+                //return document.GetElement("response").Value.ToString();
             }
 
             if (body.Length > 0)
@@ -111,19 +134,9 @@ namespace HttpListener
             return response;
         }
 
-        private static Config ReadFile()
+        public static Config ReadFile()
         {
-            var c = @"{
-  'config':
-    {
-                'endpoint': 'http://localhost:',
-      'port': 8080,
-      'targetUrl': 'http://localhost:62863',
-      'targetResource': '/api/values/'
-    }
-        }";
-            Config t = JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
-            return t;
+            return JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
         }
 
         private static string ConvertStreamToString(Stream stream)
