@@ -15,7 +15,7 @@ namespace Virtualization
     {
         private HttpClient httpClient;
         private DBHandler dbHandler;
-        private const string path = @"C:\Users\MadCat\Desktop\studium\bakk2\SV\HttpListener\tsconfig1.json";
+        private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\tsconfig1.json";
         private string targetUrl;
 
         public Program()
