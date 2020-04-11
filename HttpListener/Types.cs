@@ -7,6 +7,7 @@ namespace Virtualization
     public enum Types
     {
         HTTP,
-        UDP
+        UDP,
+        AMQP
     }
 }

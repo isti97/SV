@@ -4,15 +4,25 @@ using System.Collections.Generic;
 
 namespace Virtualization
 {
-    /*public class Content
+    public class Content
     {
         [JsonProperty(PropertyName = "config")]
-        public List<Config> Config
+        public List<PortConfig> PortConfig
         {
             get;
             set;
         }
-    }*/
+    }
+
+    public class PortConfig
+    {
+        //[JsonProperty(PropertyName = "type")]
+        public string Type
+        {
+            get;
+            set;
+        }
+    }
 
     public class Config
     {
@@ -59,13 +69,6 @@ namespace Virtualization
             set;
         }
 
-        //[JsonProperty(PropertyName = "type")]
-        public string Type
-        {
-            get;
-            set;
-        }
-
         // only for udp needed
         public int TargetPort
         {
@@ -82,6 +85,20 @@ namespace Virtualization
 
         // only for udp needed
         public int SourceListenerPort
+        {
+            get;
+            set;
+        }
+
+        //only for AMQP
+
+        public string SourceQueue
+        {
+            get;
+            set;
+        }
+
+        public string DestinationQueue
         {
             get;
             set;

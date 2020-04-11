@@ -1,0 +1,10 @@
+{
+  "config": [
+    {
+      "Type": "AMQP"
+    },
+    {
+      "Type": "HTTP"
+    }
+  ]
+}

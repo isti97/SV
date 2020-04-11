@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Virtualization
 {
@@ -15,6 +16,8 @@ namespace Virtualization
         private int callbackPort;
         private int sourceListenerPort;
         private DBHandler dBHandler;
+        private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\udpConfig.json";
+        Thread thread;
 
         public UDPManager(DBHandler dBHandler)
         {
@@ -24,12 +27,14 @@ namespace Virtualization
         public void Manage()
         {
             Initialize();
-            ListenCommunication();
+            thread = new Thread(ListenCommunication);
+            thread.Start();
         }
 
         private void Initialize()
         {
-            var configuration = Program.ReadFile();
+            var content = Program.ReadFile(path);
+            var configuration = JsonConvert.DeserializeObject<Config>(content);
             this.targetPort = configuration.TargetPort;
             this.listenPort = configuration.Port;
             this.callbackPort = configuration.CallbackPort;
