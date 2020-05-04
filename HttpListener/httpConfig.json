@@ -1,12 +1,5 @@
 {
   "Endpoint": "http://localhost:",
   "Port": 8080,
-  "TargetUrl": "http://localhost:62026",
-  "SourceUrl": "http://localhost:50710",
-  "TargetResource": "/api/values/",
-  "TargetPort": 11000,
-  "CallbackPort": 8081,
-  "SourceListenerPort": 11001,
-  "SourceQueue": "sv_queue",
-  "DestinationQueue": "accounts_queue"
+  "TargetUrl": "http://localhost:49363"
 }

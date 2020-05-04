@@ -1,7 +1,7 @@
 {
   "config": [
     {
-      "Type": "AMQP"
+      "Type": "UDP"
     },
     {
       "Type": "HTTP"

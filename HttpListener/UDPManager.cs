@@ -35,9 +35,9 @@ namespace Virtualization
         {
             var content = Program.ReadFile(path);
             var configuration = JsonConvert.DeserializeObject<Config>(content);
-            this.targetPort = configuration.TargetPort;
-            this.listenPort = configuration.Port;
-            this.callbackPort = configuration.CallbackPort;
+            this.targetPort = configuration.TargetPort.Value;
+            this.listenPort = configuration.Port.Value;
+            this.callbackPort = configuration.CallbackPort.Value;
             this.sourceListenerPort = configuration.SourceListenerPort;
         }
 

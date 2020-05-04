@@ -16,7 +16,7 @@ namespace VirtualizationTool
         private HttpClient httpClient;
         private DBHandler dbHandler;
         private string targetUrl;
-        private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\udpConfig.json";
+        private const string path = @"C:\Users\12353\Desktop\bachelor\SV\HttpListener\httpConfig.json";
         Thread thread;
 
         public HTTPManager(DBHandler dBHandler)
@@ -27,7 +27,7 @@ namespace VirtualizationTool
             this.httpClient = new HttpClient(clientHandler);
         }
 
-        private System.Net.HttpListener InitializeHttp()
+        private HttpListener InitializeHttp()
         {
             var listener = new HttpListener();
             var content = Program.ReadFile(path);
@@ -43,7 +43,7 @@ namespace VirtualizationTool
             thread.Start();
         }
 
-        public async void Communicate()
+        public void Communicate()
         {
             var listener = InitializeHttp();
 
@@ -56,9 +56,9 @@ namespace VirtualizationTool
 
                 var response = context.Response;
 
-                string responseString = await this.CreateRequest(context);
+                string responseString = this.CreateRequest(context);
 
-                var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+                var buffer = Encoding.UTF8.GetBytes(responseString);
 
                 response.ContentLength64 = buffer.Length;
 
@@ -72,7 +72,7 @@ namespace VirtualizationTool
             }
         }
 
-        private async Task<string> CreateRequest(HttpListenerContext context)
+        private string CreateRequest(HttpListenerContext context)
         {
             var httpPath = context.Request.Url.PathAndQuery;
             var headers = context.Request.Headers;
@@ -84,25 +84,30 @@ namespace VirtualizationTool
             if (document != null)
             {
                 return document.GetElement("response").Value.ToString();
-                //return document.GetElement("response").Value.ToString();
-            }
-
-            if (body.Length > 0)
-            {
-                // kuld tovabb a bodyt a requestel
             }
 
             string response = null;
             using (httpClient)
             {
-                var responseTask = httpClient.GetAsync(url);
-                responseTask.Wait();
-
-                HttpResponseMessage result = responseTask.Result;
-                if (result.IsSuccessStatusCode)
+                try
                 {
-                    response = result.Content.ReadAsStringAsync().Result;
+                    var responseTask = httpClient.GetAsync(url);
+                    responseTask.Wait();
+
+                    HttpResponseMessage result = responseTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        response = result.Content.ReadAsStringAsync().Result;
+                    }
+
+                    dbHandler.CreateNewDocumentInDB(url, response);
                 }
+                catch
+                {
+                    // service or resource is not reachable
+                    response = "";
+                }
+
             }
             dbHandler.CreateNewDocumentInDB(url, response);
             return response;

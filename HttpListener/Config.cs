@@ -16,7 +16,6 @@ namespace Virtualization
 
     public class PortConfig
     {
-        //[JsonProperty(PropertyName = "type")]
         public string Type
         {
             get;
@@ -26,29 +25,19 @@ namespace Virtualization
 
     public class Config
     {
-        /*public Config(string endpoint, int port, string targetUrl, string targetResource)
-        {
-            Endpoint = endpoint;
-            Port = port;
-            TargetUrl = targetUrl;
-            TargetResource = targetResource;
-        }*/
 
-       // [JsonProperty(PropertyName = "endpoint")]
         public string Endpoint
         {
             get;
             set;
         }
 
-       // [JsonProperty(PropertyName = "port")]
-        public int Port
+        public int? Port
         {
             get;
             set;
         }
 
-       // [JsonProperty(PropertyName = "targetUrl")]
         public string TargetUrl
         {
             get;
@@ -62,7 +51,6 @@ namespace Virtualization
             set;
         }
 
-      //  [JsonProperty(PropertyName = "targetResource")]
         public string TargetResource
         {
             get;
@@ -70,14 +58,14 @@ namespace Virtualization
         }
 
         // only for udp needed
-        public int TargetPort
+        public int? TargetPort
         {
             get;
             set;
         }
 
         // only for udp needed
-        public int CallbackPort
+        public int? CallbackPort
         {
             get;
             set;
