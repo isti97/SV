@@ -24,7 +24,7 @@ namespace Virtualization
         private void Initialize()
         {
 
-            var fileContent = ReadFile(@"C:\Users\12353\Desktop\bachelor\SV\HttpListener\portsConfig.json");
+            var fileContent = ReadFile(@"C:\Users\12353\Desktop\bachelor\SV\HttpListener\protocolConfig.json");
             var configuration = JsonConvert.DeserializeObject<Content>(fileContent);
             foreach (var c in configuration.PortConfig)
             {
