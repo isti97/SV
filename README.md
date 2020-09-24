@@ -1,1 +1,1 @@
-# SV
+This appliccation was implemented for my bachelor thesis and is able to save the responses for specified requests in a Mongodb collection. For this reason it can imitate the behavior of the tested service. This application is able to catch traffic sended on UDP, AMQP (RabbitMq) and HTTP.
